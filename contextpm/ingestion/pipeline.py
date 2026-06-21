@@ -110,7 +110,13 @@ def run_ingestion(force_synthetic: bool = False):
             conn.executemany("DELETE FROM chunk WHERE source_id=?", [(sid,) for sid in old_ids])
             conn.executemany("DELETE FROM source WHERE id=?", [(sid,) for sid in old_ids])
             conn.commit()
-            collection.delete(where={"tool_type": tool_type})
+        # Unconditional, not nested under `if old_ids:` — SQLite (contextpm.db)
+        # and the Chroma vector store live at two independent paths on disk
+        # and can fall out of sync (e.g. a Streamlit Cloud restart that resets
+        # one but not the other). If that happens, old_ids being empty would
+        # otherwise skip clearing Chroma, leaving stale vectors from a prior
+        # run silently orphaned underneath the newly inserted ones.
+        collection.delete(where={"tool_type": tool_type})
 
         job_id = str(uuid.uuid4())
         conn.execute(

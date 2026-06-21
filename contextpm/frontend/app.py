@@ -225,18 +225,59 @@ def db_conn():
     return conn
 
 def get_index_counts() -> dict:
+    # Scoped by user_id to match how run_ingestion() scopes its replace
+    # logic — an unscoped count would be wrong (inflated, double-counted
+    # data from another user row) if more than one ever existed.
     try:
         conn = db_conn()
+        user_row = conn.execute(
+            "SELECT id FROM user WHERE email = 'nitesh@finlo.com'"
+        ).fetchone()
+        if not user_row:
+            conn.close()
+            return {"jira": 0, "slack": 0, "notion": 0}
+        user_id = user_row["id"]
         counts = {}
         for tool in ("jira", "slack", "notion"):
             row = conn.execute(
-                "SELECT COUNT(*) as n FROM source WHERE tool_type=?", (tool,)
+                "SELECT COUNT(*) as n FROM source WHERE user_id=? AND tool_type=?",
+                (user_id, tool),
             ).fetchone()
             counts[tool] = row["n"] if row else 0
         conn.close()
         return counts
     except Exception:
         return {"jira": 0, "slack": 0, "notion": 0}
+
+def get_indexed_titles(tool_type: str) -> list:
+    """Actual per-source titles, for diagnosing count discrepancies (e.g.
+    local vs. deployed) directly from the running app — useful since there's
+    no remote shell into a Streamlit Cloud deployment's filesystem."""
+    try:
+        conn = db_conn()
+        user_row = conn.execute(
+            "SELECT id FROM user WHERE email = 'nitesh@finlo.com'"
+        ).fetchone()
+        if not user_row:
+            conn.close()
+            return []
+        rows = conn.execute(
+            "SELECT title, external_id, metadata FROM source "
+            "WHERE user_id=? AND tool_type=? ORDER BY title",
+            (user_row["id"], tool_type),
+        ).fetchall()
+        conn.close()
+        result = []
+        for r in rows:
+            meta = json.loads(r["metadata"] or "{}")
+            result.append({
+                "title": r["title"],
+                "external_id": r["external_id"],
+                "dataset": meta.get("dataset", ""),
+            })
+        return result
+    except Exception:
+        return []
 
 def get_source_detail(source_id: str) -> Optional[dict]:
     try:
@@ -864,6 +905,17 @@ def page_connect():
                 f'</div>',
                 unsafe_allow_html=True,
             )
+
+    with st.expander("View indexed document titles (for diagnosing count mismatches)"):
+        for tool, label in [("jira", "Jira"), ("slack", "Slack"), ("notion", "Notion")]:
+            titles = get_indexed_titles(tool)
+            st.markdown(f"**{label} — {len(titles)}**")
+            if titles:
+                for t in titles:
+                    tag = f" `{t['dataset']}`" if t["dataset"] else ""
+                    st.caption(f"• {t['title']}{tag}  (`{t['external_id']}`)")
+            else:
+                st.caption("none indexed")
 
     st.markdown("---")
     st.markdown("**Re-run indexing**")
