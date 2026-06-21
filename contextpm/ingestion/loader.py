@@ -338,26 +338,30 @@ def load_notion(force_synthetic: bool = False) -> list[dict]:
         return found
 
     # Two datasets, kept in one index but tagged separately:
-    #   finlo_synthetic — child pages directly under NOTION_PARENT_PAGE_ID
-    #     ("Finlo Knowledge Base"), the course's fictional-company data
+    #   finlo_synthetic — pages whose own `parent` field is
+    #     NOTION_PARENT_PAGE_ID ("Finlo Knowledge Base"), the course's
+    #     fictional-company data
     #   real_personal   — everything else the integration can see (e.g. a
-    #     workspace-root page like "My Real Notes (v2 eval)"), found via
-    #     /search and expanded recursively since markdown imports nest
-    #     content under an auto-created child page
+    #     workspace-root page like "My Real Notes (v2 eval)")
+    #
+    # Dataset is read directly off each page's own `parent.page_id` field,
+    # not via a separate forward lookup of NOTION_PARENT_PAGE_ID's children.
+    # That forward lookup used to be the only signal — if it ever returned
+    # empty for any reason (wrong/missing id in this environment's config,
+    # a permissions gap, a rate limit, anything), every genuine Finlo
+    # document AND the parent container page itself silently fell through
+    # to "real_personal", with no error and no log. Reading each page's own
+    # parent field can't fail that way — it's intrinsic to the page object
+    # /search already returned.
+    norm = lambda x: (x or "").replace("-", "")
+    parent_norm = norm(NOTION_PARENT_PAGE_ID)
+    if not parent_norm:
+        print("  [loader] Notion: NOTION_PARENT_PAGE_ID is not set in this "
+              "environment — cannot distinguish Finlo demo data from real "
+              "content; everything will be tagged real_personal")
+
     page_ids_with_dataset: list[tuple] = []
     try:
-        finlo_page_ids = []
-        if NOTION_PARENT_PAGE_ID:
-            r = requests.get(
-                f"https://api.notion.com/v1/blocks/{NOTION_PARENT_PAGE_ID}/children",
-                headers=headers,
-                params={"page_size": 100},
-                timeout=15,
-            )
-            raw = r.json().get("results", [])
-            finlo_page_ids = [b["id"] for b in raw if b.get("type") == "child_page"]
-        page_ids_with_dataset.extend((pid, "finlo_synthetic") for pid in finlo_page_ids)
-
         r2 = requests.post(
             "https://api.notion.com/v1/search",
             headers=headers,
@@ -365,20 +369,23 @@ def load_notion(force_synthetic: bool = False) -> list[dict]:
             timeout=15,
         )
         all_pages = [p for p in r2.json().get("results", []) if p.get("object") == "page"]
-        # Notion API ids are hyphenated UUIDs; .env's NOTION_PARENT_PAGE_ID is
-        # stored unhyphenated — normalize before comparing or the parent page
-        # itself leaks through as "real_personal".
-        norm = lambda x: x.replace("-", "")
-        excluded = {norm(pid) for pid in finlo_page_ids}
-        if NOTION_PARENT_PAGE_ID:
-            excluded.add(norm(NOTION_PARENT_PAGE_ID))
+
+        seen_top_level = set()
         for p in all_pages:
             pid = p["id"]
-            if norm(pid) in excluded:
+            if pid in seen_top_level:
                 continue
-            page_ids_with_dataset.append((pid, "real_personal"))
+            seen_top_level.add(pid)
+            if parent_norm and norm(pid) == parent_norm:
+                # The configured container page itself — never indexed as a
+                # standalone document; its content lives entirely in its
+                # children, handled below as their own pages.
+                continue
+            page_parent_id = norm((p.get("parent") or {}).get("page_id", ""))
+            dataset = "finlo_synthetic" if (parent_norm and page_parent_id == parent_norm) else "real_personal"
+            page_ids_with_dataset.append((pid, dataset))
             page_ids_with_dataset.extend(
-                (cid, "real_personal") for cid in discover_child_pages(pid)
+                (cid, dataset) for cid in discover_child_pages(pid)
             )
 
         page_objects = []
@@ -403,6 +410,15 @@ def load_notion(force_synthetic: bool = False) -> list[dict]:
             continue
         page_id = page["id"]
         content = blocks_to_text(page_id)
+
+        # A pure container/navigation page (e.g. "Finlo Knowledge Base" or
+        # the "My Real Notes (v2 eval)" wrapper) has no body content of its
+        # own — its real content lives in its children, which are indexed
+        # separately as their own pages. Skip indexing the empty shell.
+        # Independent of the parent-id skip above, so this still holds even
+        # if NOTION_PARENT_PAGE_ID is misconfigured.
+        if not content.strip():
+            continue
 
         # Strip the "[meta] author=...; created=..." marker line (added by
         # populate_notion.py) and use it to recover the real narrative author/
