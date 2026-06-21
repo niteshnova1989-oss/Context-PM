@@ -14,6 +14,7 @@ class SourceItem(BaseModel):
     tool_type: str
     title: str
     url: str
+    citation_numbers: List[int] = []
 
 
 class QueryResponse(BaseModel):

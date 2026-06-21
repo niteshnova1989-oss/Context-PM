@@ -53,20 +53,27 @@ def _build_context(chunks: list[dict]) -> str:
     return "\n\n---\n\n".join(parts)
 
 
-def _parse_citations(answer_text: str, chunks: list[dict]) -> tuple[list[str], list[str], list[str]]:
-    """Extract [N] refs → chunk_ids, source_ids, tool_types."""
+def _parse_citations(answer_text: str, chunks: list[dict]) -> tuple[list[str], list[str], list[str], dict]:
+    """Extract [N] refs → chunk_ids, source_ids, tool_types, and a
+    source_id -> [citation numbers] map. The map can have more than one
+    number per source: a source can be retrieved as multiple chunks, each
+    cited under its own [n] in the text, even though they collapse to one
+    entry in the deduped sources list — the UI needs every number a source
+    answers to, not just the first."""
     indices = {int(n) - 1 for n in re.findall(r"\[(\d+)\]", answer_text)}
     cited_chunks, cited_sources, cited_tools = [], [], []
+    citation_numbers_by_source = {}
     seen_sources = set()
     for i in sorted(indices):
         if 0 <= i < len(chunks):
             c = chunks[i]
             cited_chunks.append(c["chunk_id"])
+            citation_numbers_by_source.setdefault(c["source_id"], []).append(i + 1)
             if c["source_id"] not in seen_sources:
                 cited_sources.append(c["source_id"])
                 cited_tools.append(c["tool_type"])
                 seen_sources.add(c["source_id"])
-    return cited_chunks, cited_sources, cited_tools
+    return cited_chunks, cited_sources, cited_tools, citation_numbers_by_source
 
 
 def run_query(query_text: str, user_id: str = None) -> dict:
@@ -102,6 +109,7 @@ def run_query(query_text: str, user_id: str = None) -> dict:
             "Slack threads, and Notion pages for this query."
         )
         cited_chunk_ids = cited_source_ids = tool_types_cited = []
+        citation_numbers_by_source = {}
 
     else:
         # Step 5 — build prompt
@@ -120,8 +128,8 @@ def run_query(query_text: str, user_id: str = None) -> dict:
         completion_tokens = response.usage.output_tokens
 
         # Step 7 — parse citations
-        cited_chunk_ids, cited_source_ids, tool_types_cited = _parse_citations(
-            raw_answer, chunks
+        cited_chunk_ids, cited_source_ids, tool_types_cited, citation_numbers_by_source = (
+            _parse_citations(raw_answer, chunks)
         )
 
         # Step 7.5 — confidence, computed from the actual grounded answer
@@ -172,12 +180,13 @@ def run_query(query_text: str, user_id: str = None) -> dict:
         chunk = next((c for c in chunks if c["source_id"] == source_id), None)
         if chunk:
             sources.append({
-                "chunk_id":  chunk["chunk_id"],
-                "source_id": source_id,
-                "tool_type": tool_type,
-                "title":     chunk["title"],
-                "url":       chunk["url"],
-                "dataset":   chunk["dataset"],
+                "chunk_id":         chunk["chunk_id"],
+                "source_id":        source_id,
+                "tool_type":        tool_type,
+                "title":            chunk["title"],
+                "url":              chunk["url"],
+                "dataset":          chunk["dataset"],
+                "citation_numbers": citation_numbers_by_source.get(source_id, []),
             })
 
     conn.close()

@@ -524,7 +524,12 @@ def page_results():
         st.markdown("**Sources**")
         for s in sources:
             icon = TOOL_ICON.get(s["tool_type"], "📄")
-            with st.expander(f"{icon} [{s['tool_type'].upper()}] {s['title']}"):
+            # Bracket numbers match the inline [n] citations in the answer
+            # above — a source can carry more than one if it was retrieved
+            # as multiple chunks (e.g. "[1][3]").
+            nums = "".join(f"[{n}]" for n in s.get("citation_numbers", []))
+            label = f"{nums} {icon} [{s['tool_type'].upper()}] {s['title']}".strip()
+            with st.expander(label):
                 detail = get_source_detail(s["source_id"])
                 if detail:
                     meta_cols = st.columns(3)
