@@ -23,7 +23,14 @@ Answer the question using ONLY the context chunks provided below.
 Cite every factual claim inline using [1], [2], etc. — the number matches the source label.
 If a fact appears in multiple sources, cite all relevant ones.
 Do not add information that is not present in the context.
-If the context is insufficient, say so explicitly rather than guessing."""
+If the context is insufficient, say so explicitly rather than guessing.
+
+Citation format is strict:
+- A citation is a bare [n] placed immediately after the sentence or clause it
+  supports, e.g.: Mobile was paused due to API v2 staffing conflicts [1][3].
+- Never wrap the claim text itself in brackets, e.g. NOT:
+  [Mobile was paused due to API v2 staffing conflicts][1]
+- Never put other text inside the brackets — only the digit(s)."""
 
 LOW_CONF_PREFIX = (
     "⚠️ Low confidence — the retrieved content is weakly related to your query. "
