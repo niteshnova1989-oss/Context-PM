@@ -190,6 +190,33 @@ def run_query(query_text: str, user_id: str = None) -> dict:
     }
 
 
+def submit_feedback(answer_id: str, rating: int, helpful: bool,
+                     comment: str = None, user_id: str = None) -> str:
+    """Records feedback on an answer. Shared by the FastAPI /feedback
+    endpoint and the frontend's direct-call path, so the two never drift.
+    Raises ValueError for a bad rating, LookupError if answer_id doesn't
+    exist."""
+    if rating not in range(1, 6):
+        raise ValueError("rating must be 1-5")
+
+    conn = get_conn()
+    row = conn.execute("SELECT id FROM answer WHERE id = ?", (answer_id,)).fetchone()
+    if not row:
+        conn.close()
+        raise LookupError("answer_id not found")
+
+    feedback_id = str(uuid.uuid4())
+    conn.execute(
+        """INSERT INTO feedback
+           (id, answer_id, user_id, rating, helpful, comment, created_at)
+           VALUES (?,?,?,?,?,?,?)""",
+        (feedback_id, answer_id, user_id, rating, int(helpful), comment, _now()),
+    )
+    conn.commit()
+    conn.close()
+    return feedback_id
+
+
 if __name__ == "__main__":
     import sys
     q = " ".join(sys.argv[1:]) or "Why did we drop the mobile app from Q2?"

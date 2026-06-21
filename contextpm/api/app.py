@@ -2,9 +2,6 @@
 FastAPI application for ContextPM.
 Start: uvicorn contextpm.api.app:app --reload --port 8000
 """
-import uuid
-from datetime import datetime, timezone
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -15,9 +12,9 @@ from contextpm.api.models import (
     QueryResponse,
     SourceItem,
 )
-from contextpm.db.schema import get_conn, init_db
+from contextpm.db.schema import init_db
 from contextpm.ingestion.pipeline import run_ingestion
-from contextpm.query.pipeline import run_query
+from contextpm.query.pipeline import run_query, submit_feedback
 
 app = FastAPI(title="ContextPM API", version="1.0.0")
 
@@ -71,32 +68,12 @@ def query(req: QueryRequest):
 
 @app.post("/feedback")
 def feedback(req: FeedbackRequest):
-    if req.rating not in range(1, 6):
-        raise HTTPException(status_code=400, detail="rating must be 1–5")
-
-    conn = get_conn()
-    row = conn.execute(
-        "SELECT id FROM answer WHERE id = ?", (req.answer_id,)
-    ).fetchone()
-    if not row:
-        conn.close()
-        raise HTTPException(status_code=404, detail="answer_id not found")
-
-    feedback_id = str(uuid.uuid4())
-    conn.execute(
-        """INSERT INTO feedback
-           (id, answer_id, user_id, rating, helpful, comment, created_at)
-           VALUES (?,?,?,?,?,?,?)""",
-        (
-            feedback_id,
-            req.answer_id,
-            req.user_id,
-            req.rating,
-            int(req.helpful),
-            req.comment,
-            datetime.now(timezone.utc).isoformat(),
-        ),
-    )
-    conn.commit()
-    conn.close()
+    try:
+        feedback_id = submit_feedback(
+            req.answer_id, req.rating, req.helpful, req.comment, req.user_id,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except LookupError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     return {"status": "recorded", "feedback_id": feedback_id}

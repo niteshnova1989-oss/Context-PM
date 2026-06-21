@@ -1,7 +1,12 @@
 """
 ContextPM — Streamlit frontend.
 Run: streamlit run contextpm/frontend/app.py
-Requires FastAPI backend at http://localhost:8000
+
+Calls the query/ingestion pipelines directly (in-process) rather than going
+through a separate API server — this is what lets the app run standalone on
+Streamlit Cloud, which only runs one process per app. The FastAPI server in
+contextpm/api/app.py still works as a standalone local demo of a real API;
+it's just no longer something this frontend depends on.
 """
 import json
 import sqlite3
@@ -15,12 +20,11 @@ _ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-import requests
 import streamlit as st
 
 from contextpm.config import SQLITE_PATH
-
-API_BASE = "http://localhost:8000"
+from contextpm.ingestion.pipeline import run_ingestion
+from contextpm.query.pipeline import run_query, submit_feedback
 
 # ── Page config ────────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -215,18 +219,6 @@ def source_chip(tool: str, label: str) -> str:
     icon = TOOL_ICON.get(tool, "📄")
     return f'<span class="source-chip {cls}">{icon} {label}</span>'
 
-def call_api(endpoint: str, payload: dict) -> Optional[dict]:
-    try:
-        r = requests.post(f"{API_BASE}{endpoint}", json=payload, timeout=30)
-        r.raise_for_status()
-        return r.json()
-    except requests.exceptions.ConnectionError:
-        st.error("Cannot reach API server. Run: `uvicorn contextpm.api.app:app --port 8000`")
-        return None
-    except Exception as e:
-        st.error(f"API error: {e}")
-        return None
-
 def db_conn():
     conn = sqlite3.connect(SQLITE_PATH)
     conn.row_factory = sqlite3.Row
@@ -386,14 +378,18 @@ def page_home():
 
 
 def _run_query(query_text: str):
+    result = None
     with st.status("Searching across tools…", expanded=True) as status:
         st.write("🔵 Querying Jira…")
         st.write("💬 Querying Slack…")
         st.write("📝 Querying Notion…")
-        result = call_api("/query", {"query": query_text})
-        if result:
+        try:
+            result = run_query(query_text)
             st.write("✅ Building answer with Claude Haiku…")
             status.update(label="Answer ready", state="complete", expanded=False)
+        except Exception as e:
+            status.update(label="Query failed", state="error")
+            st.error(f"Query failed: {e}")
     if result:
         st.session_state["last_result"] = result
         st.session_state["feedback_submitted"] = False
@@ -693,15 +689,12 @@ def page_feedback():
         submitted = st.form_submit_button("Submit feedback", type="primary")
 
     if submitted:
-        resp = call_api("/feedback", {
-            "answer_id": result["answer_id"],
-            "rating":    rating,
-            "helpful":   helpful,
-            "comment":   comment or None,
-        })
-        if resp:
+        try:
+            submit_feedback(result["answer_id"], rating, helpful, comment or None)
             st.session_state["feedback_submitted"] = True
             st.rerun()
+        except (ValueError, LookupError) as e:
+            st.error(f"Could not save feedback: {e}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -845,12 +838,11 @@ def page_connect():
             st.write("💬 Processing Slack threads…")
             st.write("📝 Processing Notion pages…")
             try:
-                r = requests.post(f"{API_BASE}/ingest", timeout=180)
-                d = r.json()
+                stats = run_ingestion()
                 status.update(label="Indexing complete", state="complete", expanded=False)
                 st.success(
-                    f"Done — {d['sources_ingested']} sources, "
-                    f"{d['chunks_ingested']} chunks indexed."
+                    f"Done — {stats['sources']} sources, "
+                    f"{stats['chunks']} chunks indexed."
                 )
             except Exception as e:
                 status.update(label="Indexing failed", state="error")
@@ -943,15 +935,17 @@ def page_settings():
 
     st.markdown("")
 
-    # API health
-    st.markdown('<div class="section-label" style="margin:.5rem 0">API</div>', unsafe_allow_html=True)
-    st.code(f"Backend: {API_BASE}", language=None)
-    if st.button("Check API health"):
+    # Backend health
+    st.markdown('<div class="section-label" style="margin:.5rem 0">Backend</div>', unsafe_allow_html=True)
+    st.code("Mode: direct (in-process) — no separate API server required", language=None)
+    if st.button("Check database connection"):
         try:
-            r = requests.get(f"{API_BASE}/health", timeout=5)
-            st.success(f"API online — {r.json()}")
-        except Exception:
-            st.error("API unreachable. Run: uvicorn contextpm.api.app:app --port 8000")
+            conn = db_conn()
+            conn.execute("SELECT 1")
+            conn.close()
+            st.success("Database reachable.")
+        except Exception as e:
+            st.error(f"Database error: {e}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
