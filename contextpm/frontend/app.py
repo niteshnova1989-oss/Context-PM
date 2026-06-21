@@ -292,6 +292,21 @@ def get_feedback_for(answer_id: str) -> Optional[dict]:
     except Exception:
         return None
 
+# ── Cold-start auto-bootstrap ────────────────────────────────────────────────
+# Streamlit Cloud's filesystem is ephemeral — a fresh deploy or wake-from-sleep
+# starts with an empty contextpm.db (it's gitignored on purpose, see below).
+# Auto-populate with the Finlo synthetic demo data — never real credentials,
+# even if Jira/Slack/Notion secrets happen to be configured in this
+# environment — so a public visitor always sees a working demo instead of an
+# empty index. Idempotent: once source rows exist, every later rerun on this
+# same container sees a non-zero count and skips straight past this.
+if sum(get_index_counts().values()) == 0:
+    with st.spinner("Setting up demo data…"):
+        try:
+            run_ingestion(force_synthetic=True)
+        except Exception as e:
+            st.error(f"Could not auto-populate demo data: {e}")
+
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown(

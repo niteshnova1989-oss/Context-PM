@@ -3,6 +3,9 @@ SQLite schema — creates all 7 tables from the Phase 2 data model.
 Run once: python -m contextpm.db.schema
 """
 import sqlite3
+import uuid
+from datetime import datetime, timezone
+
 from contextpm.config import SQLITE_PATH
 
 
@@ -112,6 +115,26 @@ def get_conn(path=None):
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
+
+
+def get_or_create_default_user(conn) -> str:
+    """Single-user app, single fixed account. Lives here (not in
+    ingestion/pipeline.py) so both ingestion and querying can create this
+    row on first use — querying before the first ingestion run used to hit
+    a NOT NULL constraint on query.user_id because only ingestion ever
+    created it."""
+    row = conn.execute(
+        "SELECT id FROM user WHERE email = 'nitesh@finlo.com'"
+    ).fetchone()
+    if row:
+        return row["id"]
+    user_id = str(uuid.uuid4())
+    conn.execute(
+        "INSERT INTO user (id, email, name, created_at) VALUES (?,?,?,?)",
+        (user_id, "nitesh@finlo.com", "Nitesh R", datetime.now(timezone.utc).isoformat()),
+    )
+    conn.commit()
+    return user_id
 
 
 if __name__ == "__main__":

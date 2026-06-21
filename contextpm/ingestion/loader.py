@@ -43,9 +43,10 @@ def _adf_to_text(node) -> str:
     return joiner.join(p for p in parts if p)
 
 
-def load_jira() -> list[dict]:
-    if not all([JIRA_DOMAIN, JIRA_EMAIL, JIRA_API_TOKEN]):
-        print("  [loader] Jira: credentials not set — using synthetic data")
+def load_jira(force_synthetic: bool = False) -> list[dict]:
+    if force_synthetic or not all([JIRA_DOMAIN, JIRA_EMAIL, JIRA_API_TOKEN]):
+        print("  [loader] Jira: using synthetic data" if force_synthetic else
+              "  [loader] Jira: credentials not set — using synthetic data")
         return json.loads((SYNTHETIC_DATA_PATH / "jira_tickets.json").read_text())
 
     base = f"https://{JIRA_DOMAIN}.atlassian.net/rest/api/3"
@@ -116,9 +117,10 @@ _SLACK_SYSTEM_SUBTYPES = {
 }
 
 
-def load_slack() -> list[dict]:
-    if not SLACK_BOT_TOKEN:
-        print("  [loader] Slack: credentials not set — using synthetic data")
+def load_slack(force_synthetic: bool = False) -> list[dict]:
+    if force_synthetic or not SLACK_BOT_TOKEN:
+        print("  [loader] Slack: using synthetic data" if force_synthetic else
+              "  [loader] Slack: credentials not set — using synthetic data")
         return json.loads((SYNTHETIC_DATA_PATH / "slack_threads.json").read_text())
 
     headers = {"Authorization": f"Bearer {SLACK_BOT_TOKEN}"}
@@ -254,9 +256,10 @@ def load_slack() -> list[dict]:
 # NOTION
 # ══════════════════════════════════════════════════════════════════════════════
 
-def load_notion() -> list[dict]:
-    if not NOTION_TOKEN:
-        print("  [loader] Notion: credentials not set — using synthetic data")
+def load_notion(force_synthetic: bool = False) -> list[dict]:
+    if force_synthetic or not NOTION_TOKEN:
+        print("  [loader] Notion: using synthetic data" if force_synthetic else
+              "  [loader] Notion: credentials not set — using synthetic data")
         return json.loads((SYNTHETIC_DATA_PATH / "notion_pages.json").read_text())
 
     headers = {

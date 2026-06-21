@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 import anthropic
 
 from contextpm.config import ANTHROPIC_API_KEY, LLM_MODEL
-from contextpm.db.schema import get_conn, init_db
+from contextpm.db.schema import get_conn, get_or_create_default_user, init_db
 from contextpm.query.confidence import compute_confidence, status_for_score
 from contextpm.query.retriever import retrieve
 
@@ -73,12 +73,11 @@ def run_query(query_text: str, user_id: str = None) -> dict:
     init_db()
     conn = get_conn()
 
-    # resolve user
+    # resolve user — creates the default user row if this is the first
+    # write the app has ever made (e.g. querying before any ingestion has
+    # run), rather than assuming ingestion already created it
     if not user_id:
-        row = conn.execute(
-            "SELECT id FROM user WHERE email = 'nitesh@finlo.com'"
-        ).fetchone()
-        user_id = row["id"] if row else None
+        user_id = get_or_create_default_user(conn)
 
     # Step 2 — save Query row
     query_id = str(uuid.uuid4())

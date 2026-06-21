@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import chromadb
 
 from contextpm.config import CHROMA_PATH
-from contextpm.db.schema import get_conn, init_db
+from contextpm.db.schema import get_conn, get_or_create_default_user, init_db
 from contextpm.ingestion.chunker import CHUNKERS
 from contextpm.ingestion.embedder import embed_texts
 from contextpm.ingestion.loader import load_jira, load_notion, load_slack
@@ -75,22 +75,12 @@ def _source_meta(tool_type: str, doc: dict) -> dict:
     }
 
 
-def get_or_create_default_user(conn) -> str:
-    row = conn.execute(
-        "SELECT id FROM user WHERE email = 'nitesh@finlo.com'"
-    ).fetchone()
-    if row:
-        return row["id"]
-    user_id = str(uuid.uuid4())
-    conn.execute(
-        "INSERT INTO user (id, email, name, created_at) VALUES (?,?,?,?)",
-        (user_id, "nitesh@finlo.com", "Nitesh R", _now()),
-    )
-    conn.commit()
-    return user_id
-
-
-def run_ingestion():
+def run_ingestion(force_synthetic: bool = False):
+    """force_synthetic=True skips every tool's real-API branch regardless of
+    whether credentials are configured — used for auto-bootstrapping the
+    public Streamlit Cloud deployment so it always shows Finlo demo data,
+    never real personal Jira/Slack/Notion content even if those credentials
+    happen to be set in that environment."""
     init_db()
     conn = get_conn()
     user_id = get_or_create_default_user(conn)
@@ -105,7 +95,7 @@ def run_ingestion():
 
     for tool_type, loader in LOADERS.items():
         chunker = CHUNKERS[tool_type]
-        documents = loader()
+        documents = loader(force_synthetic=force_synthetic)
 
         # Full refresh: each ingestion run replaces this tool's prior sources
         # outright, rather than merging by external_id. This is what lets
