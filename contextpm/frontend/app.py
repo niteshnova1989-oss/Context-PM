@@ -22,7 +22,7 @@ if str(_ROOT) not in sys.path:
 
 import streamlit as st
 
-from contextpm.config import SQLITE_PATH
+from contextpm.config import IS_STREAMLIT_CLOUD, SQLITE_PATH
 from contextpm.ingestion.pipeline import run_ingestion
 from contextpm.query.pipeline import run_query, submit_feedback
 
@@ -548,12 +548,19 @@ def page_results():
                         f'{detail["content"]}</div>',
                         unsafe_allow_html=True,
                     )
-                    st.markdown(
-                        f'<a href="{s["url"]}" target="_blank" '
-                        f'style="font-size:.8rem">Open in {s["tool_type"].title()} ↗</a>',
-                        unsafe_allow_html=True,
-                    )
-                else:
+                    # The source link points into the real Jira/Slack/Notion
+                    # workspace — only the app owner running locally is
+                    # logged into those accounts, so showing it to public
+                    # demo visitors would just be a dead end.
+                    if IS_STREAMLIT_CLOUD:
+                        st.caption("🔒 Source link hidden in the public demo")
+                    else:
+                        st.markdown(
+                            f'<a href="{s["url"]}" target="_blank" '
+                            f'style="font-size:.8rem">Open in {s["tool_type"].title()} ↗</a>',
+                            unsafe_allow_html=True,
+                        )
+                elif not IS_STREAMLIT_CLOUD:
                     st.caption(f"[{s['url']}]({s['url']})")
 
     # ── Action bar (matches wireframe s7 fb-bar) ───────────────────────────────

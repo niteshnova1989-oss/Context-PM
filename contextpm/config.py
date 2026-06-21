@@ -6,6 +6,14 @@ load_dotenv()
 
 ROOT = Path(__file__).parent.parent
 
+# Streamlit Community Cloud mounts the repo at /mount/src/<repo> — a stable
+# signature of that specific hosting environment. Used to hide things that
+# only make sense for the app owner running locally with real account
+# access (e.g. "Open in Notion/Jira" links that would be a dead end for a
+# public visitor), independent of whatever credentials happen to be
+# configured in st.secrets.
+IS_STREAMLIT_CLOUD = Path("/mount/src").exists()
+
 
 def _get(key: str, default: str = "") -> str:
     """Read a config value from the OS environment (populated locally by
