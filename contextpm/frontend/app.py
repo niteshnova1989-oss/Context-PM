@@ -359,18 +359,28 @@ def page_home():
         unsafe_allow_html=True,
     )
 
+    # st.text_input reruns the script on Enter, but that rerun is otherwise
+    # indistinguishable from any other one — `go` below is only True on the
+    # specific rerun the button click itself caused, so without this
+    # on_change flag, pressing Enter updated the value but triggered nothing.
+    def _mark_enter_pressed():
+        st.session_state["search_enter_pressed"] = True
+
     query = st.text_input(
         "Ask a question",
         placeholder="e.g. Why did we drop the mobile app from Q2?",
         label_visibility="collapsed",
         key="search_box",
+        on_change=_mark_enter_pressed,
     )
 
     col_btn, col_space = st.columns([1, 5])
     with col_btn:
         go = st.button("Search →", type="primary", use_container_width=True)
 
-    if go and query.strip():
+    enter_pressed = st.session_state.pop("search_enter_pressed", False)
+
+    if (go or enter_pressed) and query.strip():
         _run_query(query.strip())
         return
 
