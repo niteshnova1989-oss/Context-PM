@@ -1,0 +1,262 @@
+[
+  {
+    "external_id": "C_product-roadmap_1705968720",
+    "channel": "#product-roadmap",
+    "messages": [
+      {
+        "author": "Sanya R",
+        "text": "We need to have a real talk about mobile. Three enterprise deals \u2014 Apex, Nordvik, and TeleCo \u2014 all flagged API v2 as a renewal blocker this week. Combined ARR at risk: $485k. We cannot staff both mobile and API v2.",
+        "ts": "2024-01-23T16:12:00Z"
+      },
+      {
+        "author": "Arjun K",
+        "text": "Mobile beta DAU is 1,180 against our 2,000 target \u2014 40% below projection. Day-7 retention is 28% vs our 45% target. We need to face the trade-off.",
+        "ts": "2024-01-23T16:18:00Z"
+      },
+      {
+        "author": "Riya D",
+        "text": "From a design perspective the mobile UX still needs 3-4 more weeks of polish. It is not ready for public launch even if we kept the resources.",
+        "ts": "2024-01-23T16:25:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "Decision: moving mobile to Q4 and redirecting Varun's team to API v2. Rationale \u2014 $485k ARR at risk outweighs the mobile opportunity at current DAU projections. I will update the PRD and close FINLO-112.",
+        "ts": "2024-01-23T16:31:00Z"
+      },
+      {
+        "author": "Varun S",
+        "text": "Understood. Will start API v2 scoping tomorrow and share revised timeline by EOW.",
+        "ts": "2024-01-23T16:45:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_product-roadmap/p1705968720"
+  },
+  {
+    "external_id": "C_product-roadmap_1704364800",
+    "channel": "#product-roadmap",
+    "messages": [
+      {
+        "author": "Nitesh R",
+        "text": "Kicking off Q2 planning. Proposed priorities: (1) API v2 GA, (2) usage-based pricing, (3) continue SSO rollout. Mobile and dashboard redesign are Q4 candidates. Thoughts?",
+        "ts": "2024-01-04T09:00:00Z"
+      },
+      {
+        "author": "Sanya R",
+        "text": "Strongly agree on API v2 as P1. The enterprise pipeline is blocked until we ship it. Three deals worth $485k are waiting.",
+        "ts": "2024-01-04T09:20:00Z"
+      },
+      {
+        "author": "Priya M",
+        "text": "Usage-based pricing needs to be Q2 \u2014 we lost 3 enterprise prospects in Q4 because our per-seat model does not fit their procurement process.",
+        "ts": "2024-01-04T09:35:00Z"
+      },
+      {
+        "author": "Arjun K",
+        "text": "Agree on Q2 priorities. One flag: dashboard redesign keeps getting pushed. NPS comments mention it 40% of the time. At some point we need to commit.",
+        "ts": "2024-01-04T09:50:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "Noted on dashboard. Q4 is a real slot, not a graveyard. If API v2 ships on time we will have bandwidth. Locking Q2 pillars as discussed.",
+        "ts": "2024-01-04T10:05:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_product-roadmap/p1704364800"
+  },
+  {
+    "external_id": "C_pricing-strategy_1706745600",
+    "channel": "#pricing-strategy",
+    "messages": [
+      {
+        "author": "Priya M",
+        "text": "Sharing the pricing model analysis. TL;DR: switching from $49/seat to usage-based at $0.08/API call increases projected ARR by 34% over 18 months. The per-seat model is hurting enterprise deals.",
+        "ts": "2024-02-01T09:00:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "The 34% ARR uplift is compelling. What is the downside risk for existing customers?",
+        "ts": "2024-02-01T09:15:00Z"
+      },
+      {
+        "author": "Priya M",
+        "text": "3 of 47 existing customers would pay more under usage-based. Proposing custom enterprise contracts for those 3 with a 6-month grandfather period for everyone else.",
+        "ts": "2024-02-01T09:30:00Z"
+      },
+      {
+        "author": "Sanya R",
+        "text": "Sales perspective: this is the right move. I have lost 2 deals in the last month where the prospect said our per-seat pricing does not fit how their finance team thinks about SaaS spend.",
+        "ts": "2024-02-01T09:45:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "Decision: switching to usage-based pricing. $0.08/call with volume tiers at 10k, 100k, 1M calls/month. 6-month grandfather for existing customers. Custom contracts for the 3 at-risk accounts. Priya to update the PRD.",
+        "ts": "2024-02-01T11:00:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_pricing-strategy/p1706745600"
+  },
+  {
+    "external_id": "C_pricing-strategy_1705276800",
+    "channel": "#pricing-strategy",
+    "messages": [
+      {
+        "author": "Priya M",
+        "text": "Starting a 6-week pricing evaluation. The question: switch from flat per-seat to usage-based? We lost Apex (initial eval), DataCo, and Meridian in Q4 2023 due to pricing inflexibility.",
+        "ts": "2024-01-15T10:00:00Z"
+      },
+      {
+        "author": "Sanya R",
+        "text": "Meridian's exact words: 'your pricing assumes a static team size but we add and remove API access dynamically.' That is a recurring objection.",
+        "ts": "2024-01-15T10:20:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "Glean is charging $50k+ annually for enterprise. We are at $49/seat/month. The gap to mid-market is real. Let us run the full analysis before deciding.",
+        "ts": "2024-01-15T10:35:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_pricing-strategy/p1705276800"
+  },
+  {
+    "external_id": "C_engineering_1706140800",
+    "channel": "#engineering",
+    "messages": [
+      {
+        "author": "Varun S",
+        "text": "API v2 scoping complete. Breakdown: rate limiting (2 weeks), webhook delivery (2 weeks), OAuth 2.0 scopes (1 week), per-endpoint rate config (2 weeks \u2014 added by Apex). Total: 7 weeks. Target GA: April 14.",
+        "ts": "2024-01-25T09:00:00Z"
+      },
+      {
+        "author": "Arjun K",
+        "text": "The per-endpoint rate config is the wildcard \u2014 requires changes to the auth middleware and billing pipeline. I can pair with you on that piece.",
+        "ts": "2024-01-25T09:20:00Z"
+      },
+      {
+        "author": "Varun S",
+        "text": "Let us start on the auth middleware changes this week while rate limiting is in review.",
+        "ts": "2024-01-25T09:35:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_engineering/p1706140800"
+  },
+  {
+    "external_id": "C_product-eng-sync_1706486400",
+    "channel": "#product-eng-sync",
+    "messages": [
+      {
+        "author": "Nitesh R",
+        "text": "Sprint planning Jan 29 \u2013 Feb 9. Priorities: (1) Varun team: API v2 rate limiting module, (2) Arjun: webhook delivery queue, (3) Riya: dashboard redesign explorations (not for build yet). Any blockers?",
+        "ts": "2024-01-28T10:00:00Z"
+      },
+      {
+        "author": "Arjun K",
+        "text": "Webhook queue needs the new Celery worker config. DevOps said it will be ready by Jan 30.",
+        "ts": "2024-01-28T10:15:00Z"
+      },
+      {
+        "author": "Riya D",
+        "text": "Will start with nav explorations. Three concepts ready by Feb 7 for async feedback.",
+        "ts": "2024-01-28T10:20:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_product-eng-sync/p1706486400"
+  },
+  {
+    "external_id": "C_product-roadmap_1705363200",
+    "channel": "#product-roadmap",
+    "messages": [
+      {
+        "author": "Sanya R",
+        "text": "Competitor update: Glean just announced a $100M Series D at a $1.2B valuation. They are doubling down on enterprise. Their minimum deal size is $50k annually \u2014 they are not coming for our mid-market segment.",
+        "ts": "2024-01-16T14:00:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "This is exactly the wedge we identified. Glean optimises for Fortune 500. Our opportunity is the 20-500 employee company that cannot afford Glean but has the same knowledge fragmentation problem.",
+        "ts": "2024-01-16T14:20:00Z"
+      },
+      {
+        "author": "Priya M",
+        "text": "We should accelerate usage-based pricing. Enterprise procurement teams want consumption billing. This helps us compete in the $10k-$50k deal range that Glean is too expensive for.",
+        "ts": "2024-01-16T14:35:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_product-roadmap/p1705363200"
+  },
+  {
+    "external_id": "C_pricing-strategy_1706832000",
+    "channel": "#pricing-strategy",
+    "messages": [
+      {
+        "author": "Priya M",
+        "text": "Pricing PRD v2 is ready for review. Key changes from v1: (1) volume tiers added at 10k, 100k, 1M calls/month, (2) enterprise custom contracts section added, (3) grandfather period extended from 3 months to 6 months based on customer feedback.",
+        "ts": "2024-02-02T10:00:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "The 6-month grandfather is the right call. Gives customers time to model actual usage before committing. Approving v2.",
+        "ts": "2024-02-02T10:30:00Z"
+      },
+      {
+        "author": "Sanya R",
+        "text": "One ask: can we add a section on how to communicate the change to existing customers? I need talking points for the renewal calls.",
+        "ts": "2024-02-02T10:45:00Z"
+      },
+      {
+        "author": "Priya M",
+        "text": "Adding a customer comms section to v2. Updated draft by EOD.",
+        "ts": "2024-02-02T11:00:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_pricing-strategy/p1706832000"
+  },
+  {
+    "external_id": "C_engineering_1707350400",
+    "channel": "#engineering",
+    "messages": [
+      {
+        "author": "Arjun K",
+        "text": "Investigating a performance issue in the search endpoint. p99 latency jumped from 180ms to 890ms yesterday around 3pm. Suspect the new full-text index on the tickets table.",
+        "ts": "2024-02-08T09:00:00Z"
+      },
+      {
+        "author": "Varun S",
+        "text": "Check the EXPLAIN output. The FTS index can cause table scans if the query planner does not pick it up with stale statistics.",
+        "ts": "2024-02-08T09:20:00Z"
+      },
+      {
+        "author": "Arjun K",
+        "text": "Found it \u2014 query planner was not using the index due to stale statistics. Ran ANALYZE, p99 is back to 175ms. No customer impact.",
+        "ts": "2024-02-08T10:15:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_engineering/p1707350400"
+  },
+  {
+    "external_id": "C_product-eng-sync_1707004800",
+    "channel": "#product-eng-sync",
+    "messages": [
+      {
+        "author": "Nitesh R",
+        "text": "API v2 launch date discussion. Varun shared revised timeline \u2014 April 14 due to per-endpoint rate config scope addition from Apex. Original target was March 31. How do we feel about the slip?",
+        "ts": "2024-02-04T10:00:00Z"
+      },
+      {
+        "author": "Sanya R",
+        "text": "Checked with Apex, Nordvik, and TeleCo. All three said April 14 is acceptable. Rushing and shipping a buggy API is worse than a 2-week slip.",
+        "ts": "2024-02-04T10:15:00Z"
+      },
+      {
+        "author": "Varun S",
+        "text": "The per-endpoint config is non-trivial. 2 weeks is the right estimate, not a padded one.",
+        "ts": "2024-02-04T10:25:00Z"
+      },
+      {
+        "author": "Nitesh R",
+        "text": "Aligned. April 14 is the new target. Updating PRODUCT-23 and communicating to enterprise accounts.",
+        "ts": "2024-02-04T10:35:00Z"
+      }
+    ],
+    "url": "https://finlo.slack.com/archives/C_product-eng-sync/p1707004800"
+  }
+]

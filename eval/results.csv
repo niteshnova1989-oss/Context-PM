@@ -1,0 +1,21 @@
+id,category,query,status,confidence,latency_ms,num_sources,tool_types,M1_gave_relevant_answer,M2_has_citations,M3_cited_2plus_tools,M4_flagged_low_confidence,M5_under_10s
+Q01,cross_tool,Why was the mobile app removed from the Q2 roadmap?,answered,0.685,4375,4,jira|notion|slack,True,True,True,False,True
+Q02,cross_tool,What was the decision rationale for switching to usage-based pricing?,answered,0.708,4803,5,jira|notion|slack,True,True,True,False,True
+Q03,cross_tool,Which enterprise customers are blocking on API v2 and why?,answered,0.653,3149,3,jira|notion,True,True,True,False,True
+Q04,cross_tool,"What were the mobile beta retention and DAU metrics, and what action followed?",answered,0.828,4910,3,jira|notion|slack,True,True,True,False,True
+Q05,cross_tool,"What is the renewal strategy for Apex, Nordvik, and TeleCo?",answered,0.649,4653,3,jira|notion,True,True,True,False,True
+Q06,factual,What is the target DAU for the Finlo mobile app in the first 90 days?,answered,0.68,1920,2,jira|notion,True,True,,False,True
+Q07,factual,Who is the named champion contact at Nordvik?,low_confidence,0.248,1936,1,notion,False,,,True,True
+Q08,factual,What is the planned GA date for API v2?,answered,0.746,2358,5,jira|notion|slack,True,True,,False,True
+Q09,factual,What database was evaluated but rejected in favor of PostgreSQL?,answered,0.473,2141,1,notion,True,True,,False,True
+Q10,factual,Who is the owner of the Q3 2024 Planning Notes?,answered,0.405,1155,1,notion,True,True,,False,True
+Q11,decision,What alternatives were considered before pausing the mobile app initiative?,answered,0.685,3962,3,jira|notion|slack,True,True,,False,True
+Q12,decision,Why did Finlo choose usage-based pricing over flat per-seat pricing?,answered,0.703,4549,5,jira|notion|slack,True,True,,False,True
+Q13,decision,What were the open questions at the end of Q2 planning that carried into Q3?,answered,0.404,3663,1,notion,True,True,,False,True
+Q14,decision,What features remain unshipped that are blocking enterprise renewals?,answered,0.619,4663,3,jira|notion,True,True,,False,True
+Q15,decision,What is the status of the SSO feature and which customers requested it?,answered,0.664,3907,2,jira|notion,True,True,,False,True
+Q16,competitive,How does Glean compare to ContextPM in terms of strengths and weaknesses?,low_confidence,0.377,2144,0,,False,,,True,True
+Q17,competitive,What are the main themes for Finlo's Q3 2024 roadmap?,answered,0.531,3764,1,notion,True,True,,False,True
+Q18,competitive,What is Finlo's strategy for SMB customer growth?,answered,0.527,5319,3,notion|slack,True,True,,False,True
+Q19,low_conf,What was discussed at the Q3 board meeting regarding investor concerns?,low_confidence,0.444,1840,0,,False,,,True,True
+Q20,no_result,What is the allocated marketing budget for Q2 and how is it split by channel?,low_confidence,0.49,1768,0,,False,,,True,True

@@ -1,0 +1,13 @@
+.env
+contextpm.db
+chroma_db/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+*.bak
+.venv/
+~$*
+.claude/settings.local.json
+eval/v2 evals test data/
+eval/notion_import.md

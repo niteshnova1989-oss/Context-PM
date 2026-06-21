@@ -1,0 +1,74 @@
+[
+  {
+    "external_id": "notion-mobile-prd-v2",
+    "title": "Mobile App PRD v2",
+    "content": "# Mobile App PRD \u2014 v2\nOwner: Nitesh R | Last updated: Jan 24, 2024 | Status: Deferred to Q4\n\n## Change log\nv1 (Nov 2023): Initial scope \u2014 iOS and Android MVP, push notifications, dashboard view.\nv2 (Jan 24, 2024): Section 4.2 updated \u2014 Mobile moved to Future Scope. Decision made Jan 23 in #product-roadmap. Engineering bandwidth redirected to API v2 following $485k ARR renewal risk across Apex, Nordvik, TeleCo.\n\n## 1. Problem statement\nPMs and engineers at Finlo customers increasingly work from mobile. A mobile app would improve daily active usage and reduce churn for remote-first teams.\n\n## 2. Goals\nTarget DAU: 2,000 within 90 days of launch.\nDay-7 retention target: 45%.\nReduce churn by 8% for mobile-first customer segments.\n\n## 3. Beta results (updated Jan 2024)\nBeta cohort DAU came in at 1,180 \u2014 40% below the 2,000 target. Day-7 retention was 28%, below the 45% target. This data weakened the case for Q2 prioritisation.\n\n## 4. Scope\n### 4.1 In scope (original v1)\nPush notifications for @mentions and ticket updates.\nDashboard with key metrics.\nTicket status view and comment threads.\n\n### 4.2 Mobile \u2014 Future Scope (updated v2)\nMobile app development is deferred to Q4 2024. Primary reason: engineering bandwidth reallocated to API v2 following three enterprise renewal risks totalling $485k ARR (Apex, Nordvik, TeleCo). Secondary reason: beta DAU 40% below projection reduces urgency. This section will be revisited in Q3 planning with updated DAU data.\n\n## 5. Open questions for Q4 revisit\nNative iOS/Android vs React Native?\nTarget power users (PMs) or all roles?\nRevised DAU target given beta data?\n",
+    "author": "Nitesh R",
+    "created_at": "2023-11-01T09:00:00Z",
+    "updated_at": "2024-01-24T14:00:00Z",
+    "url": "https://finlo.notion.so/Mobile-App-PRD-v2"
+  },
+  {
+    "external_id": "notion-api-v2-spec",
+    "title": "API v2 Platform Specification",
+    "content": "# API v2 Platform Specification\nOwner: Varun S | Last updated: Feb 21, 2024 | Status: In progress \u2014 GA April 14\n\n## Context\nAPI v2 is the primary blocker for three enterprise renewals: Apex Corp ($180k ARR), Nordvik ($95k ARR), TeleCo ($210k ARR). Combined at-risk ARR: $485k. Decision to prioritise API v2 over mobile app made Jan 23, 2024 in #product-roadmap.\n\n## Requirements\n\n### Per-tenant rate limiting\nConfigurable limits per API key. Default: 1,000 req/min. Enterprise: custom limits up to 50,000 req/min.\n\n### Per-endpoint rate limiting (added Feb 20)\nApex requested per-endpoint configuration so that the search endpoint can have different limits from write endpoints. Rate limit config stored in Redis and checked at the API gateway layer. Added 2 weeks to the timeline \u2014 revised GA: April 14, 2024. Original target was March 31.\n\n### Webhook delivery\nAt-least-once delivery guarantee. Exponential backoff retry: 5 retries over 24 hours. HMAC-SHA256 secret signing. Delivery logs retained 72 hours.\n\n### OAuth 2.0 scopes\nScopes: read:tickets, write:tickets, read:users, admin. Per-key scope configuration available in the dashboard.\n\n## Timeline\nRate limiting complete: Feb 14.\nWebhook delivery complete: Feb 10.\nOAuth scopes complete: Feb 28.\nPer-endpoint rate config complete: March 14.\nQA and staging: March 15 \u2013 April 7.\nGA: April 14, 2024.\n",
+    "author": "Varun S",
+    "created_at": "2024-01-24T09:00:00Z",
+    "updated_at": "2024-02-21T14:00:00Z",
+    "url": "https://finlo.notion.so/API-v2-Platform-Spec"
+  },
+  {
+    "external_id": "notion-pricing-prd-v2",
+    "title": "Pricing Strategy PRD v2",
+    "content": "# Pricing Strategy PRD\nOwner: Priya M | Version: v2 | Last updated: Feb 2, 2024\n\n## Change log\nv1 (Jan 15): Initial analysis \u2014 flat per-seat vs usage-based comparison.\nv2 (Feb 2): Volume tiers added. Enterprise custom contracts section added. Grandfather period extended from 3 months to 6 months based on customer feedback. Customer comms talking points added.\n\n## Decision\nSwitching from per-seat flat fee ($49/seat/month) to usage-based pricing ($0.08/API call). Decision made Feb 1, 2024 in #pricing-strategy by Nitesh R. Rationale: 34% projected ARR uplift over 18 months, removes per-seat friction for enterprise procurement, aligns with how enterprise teams buy SaaS.\n\n## Pricing tiers\nStarter: 0 to 10k calls/month at $0.08 per call.\nGrowth: 10k to 100k calls/month at $0.06 per call.\nScale: 100k to 1M calls/month at $0.04 per call.\nEnterprise: over 1M calls/month on a custom contract.\n\n## Existing customer migration\n6-month grandfather period for all existing customers \u2014 current flat-fee pricing maintained until September 2024. 3 customers identified whose usage would cost more under new model \u2014 offering custom enterprise contracts. Migration comms to be sent March 1, 2024.\n\n## Customer communication talking points\n1. You only pay for what you use \u2014 teams that use Finlo heavily get better value as they scale.\n2. Your current pricing is locked for 6 months \u2014 no changes until September 2024.\n3. If your usage means you would pay more, we will reach out personally with a custom plan.\n\n## Why we switched\nThree enterprise prospects declined in Q4 2023 due to pricing inflexibility. Glean's $50k+ annual pricing validates enterprise demand but prices out mid-market. Usage-based removes the per-seat objection and fits enterprise procurement patterns.\n",
+    "author": "Priya M",
+    "created_at": "2024-01-15T10:00:00Z",
+    "updated_at": "2024-02-02T11:00:00Z",
+    "url": "https://finlo.notion.so/Pricing-Strategy-PRD-v2"
+  },
+  {
+    "external_id": "notion-q2-roadmap",
+    "title": "Q2 2024 Roadmap",
+    "content": "# Q2 2024 Roadmap\nOwner: Nitesh R | Locked: Feb 5, 2024\n\n## Q2 pillars\n\n### 1. API v2 GA (P0)\nTarget date: April 14, 2024. Unblocks $485k in enterprise renewals (Apex, Nordvik, TeleCo). Engineering lead: Varun S.\n\n### 2. Usage-based pricing launch (P0)\nTarget date: May 1, 2024. Switches billing from $49/seat to $0.08/API call with volume tiers. Business lead: Priya M.\n\n### 3. Enterprise SSO (shipped Q1)\nSAML 2.0 and Okta integration shipped Jan 30. Nordvik approved. TeleCo review pending.\n\n## Deferred items\nMobile app: deferred to Q4. Beta DAU 40% below target. Engineering bandwidth needed for API v2. Decision made Jan 23 in #product-roadmap.\n\nDashboard redesign: deferred to Q4. 67% of users requested dark mode (Nov 2023 research) but engineering capacity is fully committed to API v2 and pricing work. Riya continuing design explorations in Q2 so build can start in Q4.\n\nSlack integration v2: Q4 candidate pending Q2 bandwidth review.\n\n## Planning notes\nQ2 planning kicked off Jan 4 in #product-roadmap. Mobile app deprioritisation decided Jan 23 after enterprise renewal risk surfaced. Roadmap locked Feb 5 after leadership review.\n",
+    "author": "Nitesh R",
+    "created_at": "2024-01-25T09:00:00Z",
+    "updated_at": "2024-02-05T17:00:00Z",
+    "url": "https://finlo.notion.so/Q2-2024-Roadmap"
+  },
+  {
+    "external_id": "notion-engineering-architecture",
+    "title": "Engineering Architecture Overview",
+    "content": "# Finlo Engineering Architecture\nOwner: Varun S | Last updated: Feb 2024\n\n## Stack\nBackend: Python (FastAPI), PostgreSQL, Redis, Celery.\nFrontend: React, TypeScript.\nInfrastructure: AWS (ECS, RDS, ElastiCache, MSK).\nSearch: Elasticsearch for full-text. ChromaDB for semantic search (new in API v2).\n\n## Key architectural decisions\n\n### PostgreSQL over MongoDB (Dec 2023)\nWe evaluated MongoDB for ticket storage but chose PostgreSQL. Reasons: (1) our data is highly relational \u2014 tickets, comments, users, and orgs all have FK relationships; (2) the team has deeper PostgreSQL expertise; (3) MongoDB's flexible schema would make the billing metering pipeline harder to query precisely. Decision made by Varun S and Arjun K after a 2-week spike.\n\n### Kafka for usage metering (Feb 2024)\nReal-time usage metering pipeline uses Kafka (AWS MSK) for event streaming and ClickHouse for aggregation. Required for usage-based pricing. Handles 12k events/second at p99 latency of 38ms.\n\n### Celery and Redis for async jobs (Q3 2023)\nBackground job processing \u2014 email, exports, webhook delivery \u2014 uses Celery with Redis as the broker. Chosen over SQS for local dev parity and simpler retry config.\n",
+    "author": "Varun S",
+    "created_at": "2023-09-01T09:00:00Z",
+    "updated_at": "2024-02-01T09:00:00Z",
+    "url": "https://finlo.notion.so/Engineering-Architecture"
+  },
+  {
+    "external_id": "notion-competitor-analysis",
+    "title": "Competitor Analysis \u2014 Q1 2024",
+    "content": "# Competitor Analysis\nOwner: Nitesh R | Last updated: Jan 16, 2024\n\n## Summary\nNo tool at an accessible price point ($10\u201315/user/month) traces decisions across PRDs, Jira, and Slack. Glean comes closest on cross-tool retrieval but is enterprise-only at $50k+ annually and has no decision lineage feature.\n\n## Glean\nStrengths: best-in-class semantic retrieval, 100+ connectors, fast.\nWeakness: enterprise-only pricing ($50k+ annual minimum), no decision tracing.\nRecent: $100M Series D in Jan 2024 at $1.2B valuation \u2014 doubling down on Fortune 500.\nOur opportunity: Glean leaves the 20\u2013500 employee mid-market entirely unserved.\n\n## Confluence AI\nStrengths: native Atlassian integration, no setup friction.\nWeakness: siloed to Confluence only \u2014 misses Slack and standalone PRDs entirely.\n\n## Notion AI\nStrengths: clean UX, excellent for Notion-native teams.\nWeakness: useless if team uses Jira. No cross-tool synthesis.\n\n## Finlo positioning\nOur wedge is decision tracing across tools at mid-market pricing. Not just cross-tool search \u2014 the why behind the what. Surfacing the Slack thread that preceded the PRD change that closed the Jira ticket. Price target: $10\u201315/user/month. Glean for PMs at 1/10th the price.\n",
+    "author": "Nitesh R",
+    "created_at": "2024-01-10T09:00:00Z",
+    "updated_at": "2024-01-16T14:00:00Z",
+    "url": "https://finlo.notion.so/Competitor-Analysis-Q1-2024"
+  },
+  {
+    "external_id": "notion-enterprise-playbook",
+    "title": "Enterprise Customer Playbook",
+    "content": "# Enterprise Customer Playbook\nOwner: Sanya R | Last updated: Feb 2024\n\n## Active enterprise accounts\n\n### Apex Corp \u2014 $180k ARR\nRenewal due: April 2024.\nKey requirement: API v2 with per-endpoint rate limiting.\nSecondary ask: CSV/JSON data export (shipped in FINLO-145).\nChampion: Marcus D, Head of Engineering.\n\n### Nordvik \u2014 $95k ARR\nRenewal due: March 2024.\nKey requirement: SAML 2.0 SSO (shipped in FINLO-67).\nAlso requires API v2 before full renewal commitment.\nChampion: Lena H, VP Product.\n\n### TeleCo \u2014 $210k ARR\nRenewal due: April 2024.\nKey requirements: API v2 and SAML SSO.\nSAML review with TeleCo IT scheduled for next week.\nChampion: Raj P, CTO.\n\n## Renewal strategy\nAll three accounts are contingent on API v2 GA on April 14. SSO is shipped. Export is shipped. API v2 is the single remaining blocker.\n",
+    "author": "Sanya R",
+    "created_at": "2024-01-05T09:00:00Z",
+    "updated_at": "2024-02-10T14:00:00Z",
+    "url": "https://finlo.notion.so/Enterprise-Customer-Playbook"
+  },
+  {
+    "external_id": "notion-q3-planning-notes",
+    "title": "Q3 2024 Planning Notes",
+    "content": "# Q3 2024 Planning Notes\nOwner: Nitesh R | Status: Early draft \u2014 planning begins June 2024\n\n## Carry-forward from Q2\nItems deferred from Q2 that are candidates for Q3 or Q4:\nMobile app (Q4 candidate \u2014 depends on API v2 outcome and revised DAU projections).\nDashboard redesign (Q4 \u2014 design explorations completing in Q2).\nSlack integration v2 (Q3 candidate \u2014 customer demand growing).\n\n## Potential Q3 themes\nExpansion and retention: deepen enterprise features post API v2 GA.\nSelf-serve growth: improve onboarding funnel for SMB customers.\nPlatform reliability: observability improvements and SLA hardening.\n\n## Open questions\nWill API v2 GA on April 14 free up enough bandwidth for mobile in Q4?\nWhat does usage-based pricing adoption look like by June?\nShould we invest in a Slack app for Finlo in Q3?\n",
+    "author": "Nitesh R",
+    "created_at": "2024-02-15T09:00:00Z",
+    "updated_at": "2024-02-15T09:00:00Z",
+    "url": "https://finlo.notion.so/Q3-2024-Planning-Notes"
+  }
+]
